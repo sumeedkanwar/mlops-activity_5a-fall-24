@@ -48,5 +48,28 @@ def submit():
         }
     }), 201
 
+@app.route('/users', methods=['GET'])
+def get_users():
+    """Return all users as JSON array."""
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, name, email, city, country FROM users ORDER BY id DESC")
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    users = [
+        {
+            "id": r[0],
+            "name": r[1],
+            "email": r[2],
+            "city": r[3],
+            "country": r[4],
+        }
+        for r in rows
+    ]
+    return jsonify(users)
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    debug_mode = os.environ.get('FLASK_DEBUG', '0') == '1'
+    app.run(host='0.0.0.0', port=5000, debug=debug_mode)
